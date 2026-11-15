@@ -19,18 +19,13 @@ tasks:
   parallel_safe: true
   depends_on: []
   done: true
-- id: t4
-  title: Add the TaskBoard client component (list, empty and failure states, create form)
-  files: [app/_components/task-board.tsx, app/globals.css]
-  covers: [AC-001.1, AC-001.2, AC-001.3, AC-001.4, AC-001.5, AC-001.6, AC-001.7]
-  parallel_safe: true
-  depends_on: [t1, t2]
 - id: t5
   title: Turn the start page into the task board and update the template tests and smoke tests
-  files: [app/page.tsx, tests/page.test.tsx, e2e/home.spec.ts, e2e/smoke.spec.ts, app/actions/tasks.ts]
+  files: [app/page.tsx, tests/page.test.tsx, e2e/home.spec.ts, e2e/smoke.spec.ts, app/actions/tasks.ts, app/_components/task-board.tsx,
+    app/globals.css]
   covers: [AC-001.1, AC-001.2, AC-001.6, AC-001.3, AC-001.4, AC-001.5, AC-001.7]
   parallel_safe: true
-  depends_on: [t2, t4, t1]
+  depends_on: [t2, t1]
 ---
 
 # Plan — 001 Task board on the start page
@@ -70,27 +65,9 @@ Contract, DOM structure and pseudocode: [design.md](design.md). Levels: t1, t2 �
 
 **Done when:** against a fake `node:http` server the acceptance tests for list classification (AC-001.6) and create classification (AC-001.3 request body, AC-001.5 `invalid-title`, AC-001.7 `503`/timeout/refused) pass at the client level; `devbox run quality` is clean.
 
-## t4 — Add the TaskBoard client component
-
-**Files:** app/_components/task-board.tsx, app/globals.css
-**Covers:** AC-001.1, AC-001.2, AC-001.3, AC-001.4, AC-001.5, AC-001.6, AC-001.7
-**Goal:** the interactive board: renders the initial list, the empty text or the load-failure text, and the create form with its validation and save-failure handling.
-
-**Implementation notes:**
-- `"use client"`; props `{ initial: ListResult; createTask: (input) => Promise<ActionResult> }`; imports types only from `@/lib/tasks/types` and `validateTitle` from `@/lib/tasks/validation`, never `@/lib/tasks/api` or `@/app/actions/tasks`.
-- Render exactly the roles, names and texts of design.md's DOM table (h1 `Task board`, `ul[aria-label=Tasks]`, `No tasks yet`, load-failure alert, form `Add task`, `Title`, `Due date` of `type="date"`, `#title-error`, save-failure alert).
-- Due date displayed as the returned string or `No due date`; no `Date` parsing.
-- Controlled `title` and `dueDate` state; form `noValidate`; no `required` / `maxLength`.
-- Submit via `onSubmit` + `useTransition` per design.md pseudocode; button disabled while pending; a rejected promise counts as `failed`.
-- On `created`: append, clear both fields and errors; on `invalid` / `failed`: keep both fields.
-- Editing the title clears the title error; a new submit clears the save failure.
-- `globals.css`: list and form styles from the existing tokens; task titles `white-space: pre-wrap` and `overflow-wrap: anywhere`, so the 375 px no-horizontal-scroll test still holds.
-
-**Done when:** the component-level acceptance tests for AC-001.1 to AC-001.7 pass rendering `TaskBoard` with a fake `createTask`; `devbox run quality` is clean.
-
 ## t5 — Turn the start page into the task board and update the template tests and smoke tests
 
-**Files:** app/page.tsx, tests/page.test.tsx, e2e/home.spec.ts, e2e/smoke.spec.ts, app/actions/tasks.ts
+**Files:** app/page.tsx, tests/page.test.tsx, e2e/home.spec.ts, e2e/smoke.spec.ts, app/actions/tasks.ts, app/_components/task-board.tsx, app/globals.css
 **Covers:** AC-001.1, AC-001.2, AC-001.6, AC-001.3, AC-001.4, AC-001.5, AC-001.7
 **Goal:** `/` renders the board from a request-time `listTasks()`; the template's tests that asserted on the old page are rewritten for it, and the smoke tests the spec asks for exist.
 
@@ -116,4 +93,22 @@ Contract, DOM structure and pseudocode: [design.md](design.md). Levels: t1, t2 �
 - `failed` → `{ status: "failed" }`.
 
 **Done when:** with `TASK_API_URL` on a fake server, calling the action sends the exact body of AC-001.3 on valid input, sends nothing on invalid input, and maps `422 title` and `503` as above; `devbox run quality` is clean.
+
+**Merged from t4 — Add the TaskBoard client component (list, empty and failure states, create form)** (acceptance tests drive the whole start page; they fail only until t5 wires app/page.tsx to TaskBoard):
+
+**Files:** app/_components/task-board.tsx, app/globals.css
+**Covers:** AC-001.1, AC-001.2, AC-001.3, AC-001.4, AC-001.5, AC-001.6, AC-001.7
+**Goal:** the interactive board: renders the initial list, the empty text or the load-failure text, and the create form with its validation and save-failure handling.
+
+**Implementation notes:**
+- `"use client"`; props `{ initial: ListResult; createTask: (input) => Promise<ActionResult> }`; imports types only from `@/lib/tasks/types` and `validateTitle` from `@/lib/tasks/validation`, never `@/lib/tasks/api` or `@/app/actions/tasks`.
+- Render exactly the roles, names and texts of design.md's DOM table (h1 `Task board`, `ul[aria-label=Tasks]`, `No tasks yet`, load-failure alert, form `Add task`, `Title`, `Due date` of `type="date"`, `#title-error`, save-failure alert).
+- Due date displayed as the returned string or `No due date`; no `Date` parsing.
+- Controlled `title` and `dueDate` state; form `noValidate`; no `required` / `maxLength`.
+- Submit via `onSubmit` + `useTransition` per design.md pseudocode; button disabled while pending; a rejected promise counts as `failed`.
+- On `created`: append, clear both fields and errors; on `invalid` / `failed`: keep both fields.
+- Editing the title clears the title error; a new submit clears the save failure.
+- `globals.css`: list and form styles from the existing tokens; task titles `white-space: pre-wrap` and `overflow-wrap: anywhere`, so the 375 px no-horizontal-scroll test still holds.
+
+**Done when:** the component-level acceptance tests for AC-001.1 to AC-001.7 pass rendering `TaskBoard` with a fake `createTask`; `devbox run quality` is clean.
 

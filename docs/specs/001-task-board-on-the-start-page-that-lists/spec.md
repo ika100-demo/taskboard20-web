@@ -1,7 +1,7 @@
 ---
 spec_id: 001-task-board-on-the-start-page-that-lists
 title: Task board on the start page that lists and adds tasks through the Task API
-status: approved
+status: building
 priority: P1
 shape: web-nextjs
 parent: ika100-demo/taskboard20-gitops:001-persistent-tasks-and-web-task-board
@@ -142,3 +142,4 @@ API at the HTTP boundary (`TASK_API_URL` pointing at a fake); the dev smoke test
 
 - 2026-11-16 created from the system plan, with its criteria (spec 147)
 - 2026-11-16 approved
+- 2026-11-16 building

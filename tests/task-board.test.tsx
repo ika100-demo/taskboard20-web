@@ -155,7 +155,7 @@ describe("TaskBoard title validation", () => {
     expect(dateInput().value).toBe("2026-05-05");
   });
 
-  it("AC-001.5 shows the too-long text when the action reports it, input kept", async () => {
+  it("AC-001.5 pass-through: the board renders whatever title error the action returns, input kept", async () => {
     const action = vi.fn<(input: CreateTaskInput) => Promise<ActionResult>>(async () => ({
       status: "invalid",
       titleError: TOO_LONG,

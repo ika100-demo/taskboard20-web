@@ -56,10 +56,7 @@ export async function startFakeApi(handler: (req: RecordedRequest) => FakeReply)
   };
 }
 
-/** A URL on which nothing listens (connection refused). */
+/** A URL on which nothing listens (connection refused): port 1 is reserved, so no freed port can be reused. */
 export async function deadUrl(): Promise<string> {
-  const api = await startFakeApi(() => ({ status: 200 }));
-  const url = api.url;
-  await api.close();
-  return url;
+  return "http://127.0.0.1:1";
 }
